@@ -66,13 +66,13 @@ contract Router {
     * @param basePoint_ the share of the shareHolder in basePoint (0.1%)
     */
     function setShareHolder(address payable shareHolder_, uint16 basePoint_) external onlyOwner{
-    // Check if the new value does not result in a payout of more than 100%
-        require((_totalBasePoints + basePoint_ - distributionKey[shareHolder_].basePoint ) < 1000,
-        "The sum of distribution keys cannot be bigger than 100%.");
+        // Check if the new value does not result in a payout of more than 100%
+        require((_totalBasePoints + basePoint_ - distributionKey[shareHolder_].basePoint ) < 10000,
+            "The sum of distribution keys cannot be bigger than 100%.");
   
         // If there are still funds left, pay them out before updating the distribution keys
         if (address(this).balance > 0) {
-            distributeFunds();
+            //distributeFunds();
         }
   
         // Update sum of all shareholder basepoints
@@ -83,7 +83,7 @@ contract Router {
       
         // If the shareholder did not exist, add him to the list of shareholders and save the _index.
         // Check for the edge case the _index in the mapping has default value 0, but is actual the first element in the list
-        if ((distributionKey[shareHolder_]._index == uint(0)) && (shareHolder_ != _shareHolders[0])){
+        if ((distributionKey[shareHolder_]._index == uint16(0)) && (_shareHolders.length > 0) && (shareHolder_ != _shareHolders[0])){
             distributionKey[shareHolder_]._index = uint16(_shareHolders.length);
             _shareHolders.push(shareHolder_);
         }
@@ -105,7 +105,7 @@ contract Router {
   
         // For each shareholder, calculate the share and send it
         for (uint i = 0; i < _shareHolders.length; i++) {
-            uint256 share = address(this).balance * distributionKey[_shareHolders[i]].basePoint / 10000;
+            uint256 share = address(this).balance * uint256(distributionKey[_shareHolders[i]].basePoint) / 10000;
             _shareHolders[i].transfer(share);
         }
   
@@ -122,9 +122,6 @@ contract Router {
         _contractOwner.transfer(address(this).balance);
         //selfdestruct(wallet) to delete the full contract?
     }
-  
-  
-  
   
 
  
