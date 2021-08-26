@@ -16,15 +16,15 @@ contract Router {
     }
  
     // Mapping to link a shareholder address to it's data
-    mapping(address => ShareHolderStruct) private distributionKey;
+    mapping(address => ShareHolderStruct) public distributionKey;
   
     // Array to keep track of share holders present
-    address payable[] private _shareHolders;
+    address payable[] public _shareHolders;
   
-    address payable private _contractOwner;
+    address payable public _contractOwner;
   
     // Used to make sure at most 100% is being routed
-    uint16 private _totalBasePoints;
+    uint16 public _totalBasePoints;
   
     // MODIFIERS
     modifier onlyOwner() {
@@ -53,7 +53,6 @@ contract Router {
     * @notice Change the contract owner
     * @param owner the address of the new contract owner
     */
-
     function setContractOwner(address payable owner) external onlyOwner {
         _contractOwner = owner;
     }
@@ -72,7 +71,7 @@ contract Router {
   
         // If there are still funds left, pay them out before updating the distribution keys
         if (address(this).balance > 0) {
-            //distributeFunds();
+            distributeFunds();
         }
   
         // Update sum of all shareholder basepoints
@@ -83,7 +82,7 @@ contract Router {
       
         // If the shareholder did not exist, add him to the list of shareholders and save the _index.
         // Check for the edge case the _index in the mapping has default value 0, but is actual the first element in the list
-        if ((distributionKey[shareHolder_]._index == uint16(0)) && (_shareHolders.length > 0) && (shareHolder_ != _shareHolders[0])){
+        if ((distributionKey[shareHolder_]._index == uint16(0)) && ((_shareHolders.length == 0) || (shareHolder_ != _shareHolders[0]))){
             distributionKey[shareHolder_]._index = uint16(_shareHolders.length);
             _shareHolders.push(shareHolder_);
         }
@@ -100,12 +99,12 @@ contract Router {
     /**
     * @notice Function for each shareholder to withdrawl his remaining funds from the contract.
     */
-
     function distributeFunds() public onlyOwner{
-  
+        // Keep track of initial share
+        uint256 totalShare = address(this).balance;
         // For each shareholder, calculate the share and send it
         for (uint i = 0; i < _shareHolders.length; i++) {
-            uint256 share = address(this).balance * uint256(distributionKey[_shareHolders[i]].basePoint) / 10000;
+            uint256 share = totalShare * uint256(distributionKey[_shareHolders[i]].basePoint) / 10000;
             _shareHolders[i].transfer(share);
         }
   
@@ -118,11 +117,8 @@ contract Router {
     /**
     * @notice Function for the owner to withdrawl all funds from the contract.
     */
-    function withDrawlAllFunds() public onlyOwner {
+    function withDrawlAllFunds() public onlyOwner{
         _contractOwner.transfer(address(this).balance);
-        //selfdestruct(wallet) to delete the full contract?
     }
-  
-
  
 }
