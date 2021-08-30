@@ -12,13 +12,13 @@ contract("Withdrawling funds", function(accounts) {
     const router = await Router.deployed()
 
     // Sent 10 ETH to the contract from senderAddress
-    await web3.eth.sendTransaction({value: web3.utils.toWei("10","ether"),
+    let amountToSpend = web3.utils.toWei("10","ether")
+    await web3.eth.sendTransaction({value: amountToSpend,
                                   from: senderAddress,
                                   to: router.address});
 
     
     // Check if the amount was received correctly
-    let amountToSpend = web3.utils.toWei("10","ether")
     let routerBalance = await web3.eth.getBalance(router.address);
     assert.equal(amountToSpend, routerBalance, "Funds were not received properly");
 
