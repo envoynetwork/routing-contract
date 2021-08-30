@@ -66,8 +66,6 @@ contract("Distributing funds", function(accounts) {
 
     // Check if the owner receives the remaining funds
     // The old balance + funds not payed to shareholders - gas costs should equal the new balance)
-    console.log(((web3.utils.toBN(10000).sub(share1.add(share2).add(share3)))).toString())
-    console.log(((web3.utils.toBN(10000).sub(share1.add(share2).add(share3))).div(web3.utils.toBN(10000))).toString())
     assert.equal((ownerBalance.add(web3.utils.toBN(amountToSpend)
                 .mul(web3.utils.toBN(10000).sub(share1.add(share2).add(share3))).div(web3.utils.toBN(10000)))
                 .sub(gasPrice.mul(gasUsed))).toString(),
