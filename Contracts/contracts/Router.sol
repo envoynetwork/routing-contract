@@ -66,7 +66,7 @@ contract Router {
     */
     function setShareHolder(address payable shareHolder_, uint16 basePoint_) external onlyOwner{
         // Check if the new value does not result in a payout of more than 100%
-        require((_totalBasePoints + basePoint_ - distributionKey[shareHolder_].basePoint ) < 10000,
+        require((_totalBasePoints + basePoint_ - distributionKey[shareHolder_].basePoint ) <= 10000,
             "The sum of distribution keys cannot be bigger than 100%.");
   
         // If there are still funds left, pay them out before updating the distribution keys
@@ -90,8 +90,10 @@ contract Router {
         else if (basePoint_ == 0){
         // Order does not mather in the list, overwrite the address-to-delete with the last address
         // and delete the last address to avoid gaps in the array
+            distributionKey[_shareHolders[_shareHolders.length-1]]._index = distributionKey[shareHolder_]._index;
             _shareHolders[distributionKey[shareHolder_]._index] = _shareHolders[_shareHolders.length-1];
-            delete _shareHolders[_shareHolders.length-1];
+
+            _shareHolders.pop();
             distributionKey[shareHolder_]._index = 0;
         }
     }
@@ -109,7 +111,7 @@ contract Router {
         }
   
         // Send remaining funds to the contract owner
-        withDrawlAllFunds();
+        withdrawlAllFunds();
   
     }
   
@@ -117,7 +119,7 @@ contract Router {
     /**
     * @notice Function for the owner to withdrawl all funds from the contract.
     */
-    function withDrawlAllFunds() public onlyOwner{
+    function withdrawlAllFunds() public onlyOwner{
         _contractOwner.transfer(address(this).balance);
     }
  
