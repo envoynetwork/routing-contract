@@ -1,47 +1,50 @@
 /**
- * Envoy Billboard SC deployment config
+ * Envoy routing contract deployment config
  */
 
-const HDWalletProvider = require('@truffle/hdwallet-provider');
+ const HDWalletProvider = require('@truffle/hdwallet-provider');
 
-const fs = require('fs');
-const mnemonic = fs.readFileSync(".secret").toString().trim();
-const infuraKey = fs.readFileSync(".infuraKey").toString().trim();
-
-module.exports = {
-
-  // Ethereum networks
-  networks: {
-
+ const fs = require('fs');
+ const privateKeys = [fs.readFileSync(".secret").toString().trim()];
+ const infuraKey = fs.readFileSync(".infuraKey").toString().trim();
+ 
+ module.exports = {
+ 
+   // Ethereum networks
+   networks: {
+ 
     // Development
     development: {
-     host: "127.0.0.1",
-     port: 8545,
-     network_id: "*",
+      host: "127.0.0.1",
+      port: 8545,
+      network_id: "*",
     },
-
+ 
     // Testnet
     goerli: {
       provider: function() {
-        return new HDWalletProvider(mnemonic, "https://goerli.infura.io/v3/" + infuraKey)
+        return new HDWalletProvider({
+          privateKeys: privateKeys,
+          providerOrUrl: "https://goerli.infura.io/v3/" + infuraKey})
       },
       network_id: 5,
       gas: 4000000
     },
-
+ 
     // Testnet
     rinkeby: {
       provider: function() {
-        return new HDWalletProvider(mnemonic, "https://rinkeby.infura.io/v3/" + infuraKey)
-      },
+        return new HDWalletProvider({
+          privateKeys: privateKeys,
+          providerOrUrl: "https://rinkeby.infura.io/v3/" + infuraKey})      },
       network_id: 4
     }
-
+ 
     // Mainnet
     // TODO
 
   },
-
+ 
   // Default mocha options
   mocha: {
     // timeout: 100000
@@ -59,3 +62,4 @@ module.exports = {
     enabled: false
   }
 };
+ 

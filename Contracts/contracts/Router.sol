@@ -60,6 +60,13 @@ contract Router {
     function setContractOwner(address payable owner) external onlyOwner {
         _contractOwner = owner;
     }
+
+    /**
+     * @return Returns the amount of shareholders
+     */
+    function getShareholdersLength() view external returns(uint){
+        return shareholders.length;
+    }
   
     /**
     * @notice Function to add, remove or update shareholders.
