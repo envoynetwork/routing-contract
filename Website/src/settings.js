@@ -1,0 +1,9 @@
+// Indicating to which blockchain to connect
+//const webProvider = "http://127.0.0.1:8545";
+const webProvider = "https://rinkeby.infura.io/v3/abef800574bf4728bf55f30225e03c0f";
+
+// Setup once contract is deployed
+const contractAddress = "0xA39C671387d8D94457A6307C520138f47E61a021";
+
+export { webProvider };
+export { contractAddress };
