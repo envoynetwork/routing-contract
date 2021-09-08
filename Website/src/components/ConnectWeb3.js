@@ -35,6 +35,7 @@ class ConnectWeb3 extends Component{
         }
         this.handleChange = this.handleChange.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
+        this.handleDistribution = this.handleDistribution.bind(this);
     }
 
     /**
@@ -115,7 +116,10 @@ class ConnectWeb3 extends Component{
         for(let i=0; i < state.contractProperties.shareholdersLength; i++){
             let shareholder = await state.contractReadOnly.methods.shareholders(i).call()
             let shareholderInfo = await state.contractReadOnly.methods.distributionKey(shareholder).call()
-            shareholderInfo = {shareholder: shareholder, basepoints: shareholderInfo.basePoint/1000}
+            console.log(shareholderInfo)
+            shareholderInfo = {shareholder: shareholder, basepoints: shareholderInfo.basePoint}
+            console.log(shareholderInfo)
+
             state.contractProperties.shareholdersData.push(shareholderInfo)
         }
         this.setState(state)
@@ -130,12 +134,29 @@ class ConnectWeb3 extends Component{
 
     async handleSubmit(event) {
         event.preventDefault()
-        let receipt = await this.state.contract.methods.setShareHolder(this.state.formProperties.shareholder, this.state.formProperties.basepoints).call()
-        console.log(receipt)
-        alert('Transaction submitted!');
+        try{
+            let receipt = await this.state.contract.methods.setShareHolder(this.state.formProperties.shareholder, this.state.formProperties.basepoints).send({from: this.state.connectedWallet})
+            await receipt
+            alert('Transaction mined!');
+        }
+        catch (error){
+            await error
+            alert(error)
+        }
     }
 
-
+    async handleDistribution(event) {
+        event.preventDefault()
+        try{
+            let receipt = await this.state.contract.methods.distributeFunds().send({from: this.state.connectedWallet})
+            await receipt
+            alert('Transaction mined!');
+        }
+        catch (error){
+            await error
+            alert(error)
+        }        
+    }
 
     render() {
         let state = this.state
@@ -143,12 +164,34 @@ class ConnectWeb3 extends Component{
         return (
         <div>
             <div className='Title'>
-                Testing routing contract with address {this.props.contractAddress} on {this.getConnectedNetwork(state.connectedNetwork)}<br></br>
-                User connected is '{state.connectedWallet}'.<br></br>
-                Only contract owner ({state.contractProperties._contractOwner}) can modify the contract.
+                Envoy Router test
             </div>
             <div className='Subtitle'>
-                Get list of shareholders (currently {state.contractProperties.shareholdersLength} present, with total share of {state.contractProperties.totalShares/10000}%)
+                Info
+            </div>
+            <div>
+                This address is used to receive funds with Envoy as a receiver, and to equally devide them between all the relevant shareholders.
+                The contract owner can add, update or delete shareholders and define which share they should receive.
+                The contract owner can decide to distribute the funds received by the contract over all shareholders.
+                If the total amount of shares is lower than 10000BP or 100%, the remaining funds are send to an Envoy wallet.
+            </div>
+            <div className='Subtitle'>
+                Contract and network data
+            </div>
+            <div>
+                <ul>
+                    <li>Testing routing contract with address '{this.props.contractAddress}' on network {this.getConnectedNetwork(state.connectedNetwork)}</li>
+                    <li>The user connected is '{state.connectedWallet}'.</li>
+                    <li>Only the contract owner ('{state.contractProperties._contractOwner}') can modify the contract shareholders or distribute funds.</li>
+                </ul>
+            </div>
+            <div className='Subtitle'>
+                Current status
+            </div>    
+            <div>
+                A list of currently registered shareholders (currently {state.contractProperties.shareholdersLength}) is listed below.
+                They account for a total share of {state.contractProperties.totalShares/10000}%)
+                The remaining {100-state.contractProperties.totalShares/10000}% of all funds will be send to the Envoy address.
             </div>
             <table id="ShareholderList">
                 <thead>
@@ -178,28 +221,43 @@ class ConnectWeb3 extends Component{
                                     {object.shareholder}
                                 </td>
                                 <td>
-                                    {object.basePoint}%
+                                    {parseInt(object.basepoints)} basepoints
                                 </td>
                             </tr>))
                         )
                     }
                 </tbody>
              </table>
-             <div>
-                <form  onSubmit={this.handleSubmit}>
-                    <label>
-                        New shareholder:
-                        <input type="text" name="shareholder" value={this.state.formProperties.shareholder} onChange={this.handleChange}/>
-                         {/* onChange={(e) => {this.handleChange('shareholder', e)}}/> */}
-                    </label>
-                    <label>
-                        Amount of basepoints (1BP = 0.01%):
-                        <input type="text" name="basepoints" value={this.state.formProperties.basepoints} onChange={this.handleChange}/>
-                        {/* {(e) => {this.handleChange('basepoints', e)}}/> */}
-                    </label>                
-                    <input type="submit" value="Submit"/>
-                    </form>
-             </div>
+            <div className='Subtitle'>
+                Update a shareholder.
+            </div>
+            <div>
+                <ul>
+                    <li> To add or update a shareholder, provide the address and the amount of basepoints (0.01BP = 1%) the share is.</li>
+                    <li> To delete an existing shareholder, provide the address and set the amount to 0.</li>
+                </ul>
+            </div>
+            <form  onSubmit={this.handleSubmit}>
+                <label>
+                    Shareholder:
+                    <input type="text" name="shareholder" value={this.state.formProperties.shareholder} onChange={this.handleChange}/>
+                        {/* onChange={(e) => {this.handleChange('shareholder', e)}}/> */}
+                </label>
+                <label>
+                    Amount of basepoints (1BP = 0.01%):
+                    <input type="text" name="basepoints" value={this.state.formProperties.basepoints} onChange={this.handleChange}/>
+                    {/* {(e) => {this.handleChange('basepoints', e)}}/> */}
+                </label>                
+                <input type="submit" value="Submit"/>
+            </form>
+            <div className='Subtitle'>
+                Distribute the funds as contract owner
+            </div>
+            <div>
+                With the button below, you can distribute the funds according to the distribution key of the contract.
+            </div>
+            <button onClick={this.handleDistribution}>Distribute funds</button>
+
         </div>
         )
     }

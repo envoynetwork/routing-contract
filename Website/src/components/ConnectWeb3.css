@@ -1,7 +1,17 @@
-.Title{
-    font-size: xx-large;
+body{
+    margin-left: 5%;
+
 }
 
 .Title{
     font-size: large;
+    font-weight: bolder;
+    padding-top: 3%;
 }
+
+.Subtitle{
+    font-size: medium;
+    font-weight: bold;
+    padding-top: 2%;
+}
+

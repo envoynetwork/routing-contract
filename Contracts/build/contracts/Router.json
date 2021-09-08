@@ -12413,12 +12413,12 @@
     "5777": {
       "events": {},
       "links": {},
-      "address": "0xacCD6Cbd3C1dAA6B312492A09FeD12B6A584875C",
-      "transactionHash": "0x55923a96f2a52a520e6b60c3c40e3c39117a8f99fbad29cd02142b0af6561ccd"
+      "address": "0xf0007c7246f9bCAb6AB619ACE51Aaeaaa531Ce04",
+      "transactionHash": "0x894e9bcdba03a7b4ccf6017e2ab76ccc38809d13eee4189b1316ed9707bbeefd"
     }
   },
   "schemaVersion": "3.4.2",
-  "updatedAt": "2021-09-08T17:51:41.645Z",
+  "updatedAt": "2021-09-08T19:00:01.572Z",
   "networkType": "ethereum",
   "devdoc": {
     "author": "Kasper De Blieck",
