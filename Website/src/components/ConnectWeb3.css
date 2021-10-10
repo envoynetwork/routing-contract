@@ -1,6 +1,11 @@
+
 body{
     margin-left: 5%;
+    margin-right: 5%;
+}
 
+div{
+    padding-bottom: 1%;
 }
 
 .Title{
@@ -13,5 +18,15 @@ body{
     font-size: medium;
     font-weight: bold;
     padding-top: 2%;
+}
+
+table, td, th{
+    padding-top: 2%;
+    border-collapse: collapse;
+    border: 1px solid;
+}
+
+thead {
+    font-weight: bold;
 }
 

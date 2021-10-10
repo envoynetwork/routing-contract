@@ -26,5 +26,5 @@ A simple front end to test the features in the smart contract. Before testing, m
 Rinkeby deployment address:
 
 - owner: 0x6b4934c85B8cb94A6a7aC4496a2eEc9184fFac59
-- contract address: 0xA39C671387d8D94457A6307C520138f47E61a021
-- transaction address: 0x3a3cc516312c0a8777bba8e9f03266419080856246293f5d8e96a94a84dd444d
+- contract address: 0xD4955E7041C150177Dc6d72549e70D75b008E8Ce
+- transaction address: 0x73f89daeb9cdc34324250e0c5138860b7218e22b49411c5d533268293632c4a1

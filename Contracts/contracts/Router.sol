@@ -1,6 +1,7 @@
-//SPDX-License-Identifier: UNLICENSED"
+//SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.0;
 
+import "@openzeppelin/contracts/access/Ownable.sol";
 
 /**
  * @title A routing contract to distribute funds
@@ -8,7 +9,7 @@ pragma solidity ^0.8.0;
  * @notice This contract will receive funds and distribute them to other shareholder addresses via a distribution key.
  * The contract owner is responsable for setting and updating the shareholders and triggering the payout.
  */
-contract Router {
+contract Router is Ownable() {
     
     // Event to notify shareholders of pay outs
     event DistributeFunds(address indexed to, uint256 value);
@@ -24,27 +25,18 @@ contract Router {
   
     // Array to keep track of share holders present
     address payable[] public shareholders;
-  
-    address payable public _contractOwner;
-  
+    
     // Used to make sure at most 100% is being routed
     uint16 public totalBasePoints;
   
-    // MODIFIERS
-    modifier onlyOwner() {
-        require(msg.sender == _contractOwner, "Only owner has access to this function");
-        _;
-    }
-  
     modifier onlyShareHolder() {
-        require(distributionKey[msg.sender].basePoint > 0, "Only shareholders with a share have access to this function");
+        require(distributionKey[_msgSender()].basePoint > 0, "Only shareholders with a share have access to this function");
         _;
     }
 
   
     // FUNCTIONS
     constructor (){
-        _contractOwner = payable(msg.sender);
     }
   
     /**
@@ -52,14 +44,6 @@ contract Router {
     */
     receive() external payable {}
     fallback() external payable {}
-
-    /**
-    * @notice Change the contract owner
-    * @param owner the address of the new contract owner
-    */
-    function setContractOwner(address payable owner) external onlyOwner {
-        _contractOwner = owner;
-    }
 
     /**
      * @return Returns the amount of shareholders
@@ -132,7 +116,7 @@ contract Router {
     * @notice Function for the owner to withdrawl all funds from the contract.
     */
     function withdrawlAllFunds() public onlyOwner{
-        _contractOwner.transfer(address(this).balance);
+        payable(owner()).transfer(address(this).balance);
     }
  
 }

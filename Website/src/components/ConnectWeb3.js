@@ -22,6 +22,7 @@ class ConnectWeb3 extends Component{
             web3ReadOnly: null,
             contractReadOnly: null,
             contractProperties: {
+                balance: 0,
                 _contractOwner: '',
                 totalShares: 0,
                 totalBasePoints: 0,
@@ -31,11 +32,14 @@ class ConnectWeb3 extends Component{
             formProperties: {
                 shareholder: '',
                 basepoints: '',
+                newOwner: '',
             }
         }
         this.handleChange = this.handleChange.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
         this.handleDistribution = this.handleDistribution.bind(this);
+        this.handleWithdrawl = this.handleWithdrawl.bind(this);
+        this.handleChangeOwner = this.handleChangeOwner.bind(this);
     }
 
     /**
@@ -110,7 +114,8 @@ class ConnectWeb3 extends Component{
      */
     async getContractProperties(){
         let state = this.state
-        state.contractProperties._contractOwner = await state.contractReadOnly.methods._contractOwner().call()
+        state.contractProperties.balance = await state.web3.eth.getBalance(this.props.contractAddress)
+        state.contractProperties._contractOwner = await state.contractReadOnly.methods.owner().call()
         state.contractProperties.totalShares = await state.contractReadOnly.methods.totalBasePoints().call()
         state.contractProperties.shareholdersLength = await state.contractReadOnly.methods.getShareholdersLength().call()
         for(let i=0; i < state.contractProperties.shareholdersLength; i++){
@@ -156,6 +161,32 @@ class ConnectWeb3 extends Component{
             await error
             alert(error)
         }        
+    }
+
+    async handleWithdrawl(event){
+        event.preventDefault()
+        try{
+            let receipt = await this.state.contract.methods.withdrawlAllFunds().send({from: this.state.connectedWallet})
+            await receipt
+            alert('Transaction mined!');
+        }
+        catch (error){
+            await error
+            alert(error)
+        }        
+    }
+
+    async handleChangeOwner(event){
+        event.preventDefault()
+        try{
+            let receipt = await this.state.contract.methods.transferOwnership(this.state.formProperties.newOwner).send({from: this.state.connectedWallet})
+            await receipt
+            alert('Transfered ownership');
+        }
+        catch (error){
+            await error
+            alert(error)
+        }     
     }
 
     render() {
@@ -228,6 +259,9 @@ class ConnectWeb3 extends Component{
                     }
                 </tbody>
              </table>
+             <div>
+                 Current balance of the contract: {state.contractProperties.balance} wei
+             </div>
             <div className='Subtitle'>
                 Update a shareholder.
             </div>
@@ -251,13 +285,30 @@ class ConnectWeb3 extends Component{
                 <input type="submit" value="Submit"/>
             </form>
             <div className='Subtitle'>
-                Distribute the funds as contract owner
+                Distribute the funds as contract owner or withdrawl everything
             </div>
             <div>
                 With the button below, you can distribute the funds according to the distribution key of the contract.
             </div>
             <button onClick={this.handleDistribution}>Distribute funds</button>
-
+            <div>
+                With the button below, you can withdrawl all the funds to the contract owner address.
+            </div>
+            <button onClick={this.handleWithdrawl}>Withdrawl all funds</button>
+            <div className='Subtitle'>
+                Update contract owner.
+            </div>
+            <div>
+                Transfer ownership rights to a new address.
+            </div>
+            <form  onSubmit={this.handleChangeOwner}>
+                <label>
+                    New owner:
+                    <input type="text" name="newOwner" value={this.state.formProperties.newOwner} onChange={this.handleChange}/>
+                        {/* onChange={(e) => {this.handleChange('shareholder', e)}}/> */}
+                </label>          
+                <input type="submit" value="Submit"/>
+            </form>
         </div>
         )
     }
